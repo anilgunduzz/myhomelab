@@ -44,7 +44,7 @@ All four containers share the host's network namespace rather than using Docker'
 
 - **Home Assistant and ESPHome depend on mDNS and SSDP** for device discovery — ESPHome nodes announcing themselves on the LAN, and Home Assistant discovering Chromecasts, HomeKit devices, and similar integrations. Docker's bridge network NATs traffic and does not forward multicast, which silently breaks discovery in ways that are frustrating to diagnose (devices simply never appear). Host networking avoids this entirely, without needing a macvlan network or maintaining per-integration port mappings.
 - **The MQTT broker must be reachable by LAN devices** as though it were a bare-metal service, rather than through Docker's NAT layer.
-- **The cost is namespace isolation.** These containers no longer have independent network stacks. That's acceptable here because all four are trusted, self-operated services rather than arbitrary third-party workloads — but it's a conscious trade, not a default.
+- **The cost is namespace isolation.** These containers no longer have independent network stacks. That's acceptable here because all four are trusted, self-operated services rather than arbitrary third-party workloads — but it's a conscious trade, not a default. **Result:** device discovery works reliably out of the box, and the alternative (maintaining a macvlan network plus per-integration port mappings that break every time an integration is added) is avoided entirely.
 
 A side effect worth noting: because host networking is in use, the `expose:` declarations that `docker-autocompose` emits are inert — `expose` is a bridge-network concept and has no effect in this mode. Services bind directly to host ports.
 
@@ -76,7 +76,7 @@ WUD watches container images and surfaces available updates, but is deliberately
 | Image prune | `true` | Reclaim superseded image layers automatically — important on constrained eMMC storage |
 | Auto-apply | **`false`** | The core decision — see below |
 
-**Why `auto = false`:** in a home-automation stack, an unattended overnight update can silently break RF device integrations or trigger a Home Assistant config migration that requires manual intervention. Discovering that the blinds stopped responding because a container updated itself at 03:00 is a far worse outcome than applying updates manually a few days late. WUD's job here is *visibility*, not automation.
+**Why `auto = false`:** in a home-automation stack, an unattended overnight update can silently break RF device integrations or trigger a Home Assistant config migration that needs manual intervention. Discovering that the blinds stopped responding because a container updated itself at 03:00 is a far worse outcome than applying updates a few days late. **Result:** the stack stays current without ever changing underneath me — updates are applied deliberately, at a time when there's capacity to verify them and roll back if needed. WUD's job here is *visibility*, not automation.
 
 **Digest watching is enabled selectively**, only on `esphome` and `mosquitto`. Both track floating tags (`stable` and `latest`), where the underlying image can change without the tag changing — digest comparison is the only way to detect that. It is deliberately not enabled on `wud` itself, to avoid the tool watching its own image.
 
@@ -97,19 +97,19 @@ All persistent data lives under `/opt/docker/` — the dedicated eMMC partition 
 └── esphome/                # device YAML definitions, build cache
 ```
 
-All four containers use `restart: unless-stopped`, so the stack recovers automatically after a host reboot or daemon restart while still honouring a deliberate manual stop.
+All four containers use `restart: unless-stopped`. **Result:** the stack recovers by itself after a power cut or host reboot — important because this hardware is also the router, so it reboots for reasons unrelated to home automation — while a deliberate manual stop is still respected rather than being undone on the next restart.
 
 ---
 
 ## 🧭 Known Gaps & Backlog
 
-Documenting a homelab honestly means documenting what isn't finished. These are real, identified issues in the current stack:
+Documenting a homelab honestly means documenting what isn't finished. These are real, identified issues in the current stack, listed with the benefit closing each one would deliver:
 
 - **No log rotation is configured.** All four containers use the default `json-file` logging driver with no `max-size` or `max-file` limits, meaning container logs grow without bound. On an embedded device with finite eMMC this is a genuine risk — and an inconsistency with the router side, where log growth in tmpfs is already actively capped (see [`network/`](../network/README.md#️-system--performance-tuning)). Setting per-container log limits, or a daemon-wide default in `daemon.json`, is the fix.
 - **No resource limits.** No memory or CPU constraints are set on any container. A runaway process could starve the host — which is not just a NAS, but the router handling all network traffic. Bounding Home Assistant's memory in particular is the highest-value change here.
 - **No health checks.** Containers restart on process exit, but a hung-but-running service (an MQTT broker that stops accepting connections, for example) won't be detected or recovered automatically.
 - **`latest` tags in use** for Mosquitto and WUD. Combined with WUD's digest watching this is *visible* rather than silent, but pinning to explicit versions would make rollbacks deterministic.
-- **The Home Assistant image carries no repository tag**, only a digest reference. This is why tag-based digest watching isn't meaningful for it, and it makes the image's provenance harder to read at a glance. Re-pulling against an explicit version tag would restore that.
+- **The Home Assistant image is referenced by a raw digest rather than a repository:tag**, so WUD has nothing to compare against a registry and effectively can't detect new releases for it — the one container in the stack that isn't meaningfully covered by the "notify on updates" design. Since Home Assistant ships explicit calendar-versioned tags (not a floating `latest`), the fix is straightforward: re-pull and re-create the container against an explicit version tag rather than a digest, which restores normal tag-based update detection without needing digest watching at all.
 - **The generated compose file is not directly re-deployable as-is.** `docker-autocompose` emits the legacy `version:` key (obsolete in Compose V2) and, because one volume was auto-created by Docker rather than named explicitly, declares it as `external: true` — meaning a fresh `docker compose up` on a clean host would fail until that volume is defined properly. The generated file is currently a *documentation artifact*, not yet a deployment artifact. Converting it into a genuinely reproducible stack is the next step.
 - **Timezone is set explicitly on three of four containers** but not on Mosquitto, so its log timestamps are offset from the rest of the stack — a small thing that makes cross-container log correlation unnecessarily annoying.
 - **No update notifications are configured.** WUD surfaces pending updates in its dashboard only; there's no push notification path, so noticing an update still requires actively looking. Wiring a notification trigger would close the loop on the notify-don't-automate design.
