@@ -28,11 +28,11 @@ A daily-driver Linux desktop that dual-boots cleanly alongside Windows 11 — Li
 
 ## 📋 Planned Next Steps
 
-1. **Enable Secure Boot with custom key enrollment** rather than leaving it off — the goal is to keep the security boundary Secure Boot provides instead of trading it away for convenience, which is the more common shortcut on Arch-based systems.
-2. Wire up scheduled Btrfs snapshots (`snapper` or equivalent), so the copy-on-write filesystem actually functions as a rollback safety net on a rolling-release distribution, not just as a technical choice on paper.
-3. Version-control the Hyprland/CachyOS dotfiles (config, keybindings, theming) and publish a sanitized copy here.
-4. Document the Secure Boot key enrollment process step by step once it's done — this is likely the most reusable, non-obvious part of the setup for anyone else wanting Secure Boot **and** an Arch-based rolling-release system.
-5. Document the dual-boot partition/bootloader layout (without disk sizes or partition labels that reveal anything sensitive).
+1. **Enable Secure Boot with custom key enrollment** rather than leaving it off. *Benefit:* restores verification of the boot chain, so a tampered bootloader or kernel won't silently load — the security boundary most Arch users trade away for convenience. It also keeps the Windows side of the dual-boot working under its expected security posture rather than requiring firmware settings to be weakened for both operating systems.
+2. **Wire up scheduled Btrfs snapshots** (`snapper` or equivalent). *Benefit:* turns Btrfs from a technical choice on paper into an actual safety net — on a rolling-release distribution a bad update can break the desktop at any time, and a pre-update snapshot converts that from a reinstall into a two-minute rollback.
+3. **Version-control the Hyprland/CachyOS dotfiles.** *Benefit:* makes the setup reproducible on a new machine in minutes instead of being reconstructed from memory, and makes it possible to roll back a configuration change independently of a system snapshot.
+4. **Document the Secure Boot enrollment process** once it's done. *Benefit:* this is the least-documented, most-fragile part of the setup — keys have to survive kernel and bootloader updates — so a written procedure is what makes it maintainable rather than a one-off that breaks at the next update.
+5. **Document the dual-boot partition and bootloader layout** (omitting anything sensitive). *Benefit:* makes recovery from a broken bootloader a procedure rather than an improvisation, which is exactly when clear notes matter most.
 
 ## 🛠️ Stack (so far)
 
