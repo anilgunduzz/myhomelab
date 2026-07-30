@@ -22,11 +22,11 @@ The router terminates the ISP connection directly over **PPPoE on a tagged VLAN*
 
 Key decisions:
 
-- **`peerdns '0'`** — the WAN interface refuses to accept the DNS servers the ISP pushes during PPPoE negotiation. This is the *first* of three independent layers preventing ISP DNS from ever being used (see the DNS chain below).
+- **`peerdns '0'`** — the WAN interface refuses to accept the DNS servers the ISP pushes during PPPoE negotiation. This is the *first* of three independent layers preventing ISP DNS from ever being used. **Result:** browsing metadata never reaches the ISP's resolvers, and ISP-level DNS interception or injection has no path into the network.
 - **WAN DNS pinned to `127.0.0.1`** — the router resolves through its own local stack, not upstream.
-- **`mtu '1492'`** — the correct PPPoE MTU (1500 minus the 8-byte PPPoE header). Paired with `mtu_fix` on the WAN firewall zone, which applies MSS clamping so TCP sessions negotiate a segment size that actually fits, avoiding the classic "some HTTPS sites hang forever" PMTU black-hole problem.
+- **`mtu '1492'`** — the correct PPPoE MTU (1500 minus the 8-byte PPPoE header), paired with `mtu_fix` on the WAN firewall zone for MSS clamping. **Result:** eliminates the classic PMTU black-hole symptom where most of the internet works but a handful of HTTPS sites hang forever — a failure that is notoriously hard to diagnose from the client side.
 - **`norelease '1'`** — the session isn't torn down cleanly on reconfiguration, which keeps the ISP from re-assigning a different address on every minor config change.
-- **A dedicated, normally-disabled `ONT_Access` interface** sits on the same physical port with a static address in the modem's own management subnet. It's set to `auto '0'`, so it stays down during normal operation and can be brought up on demand only when I need to reach the ONT's web interface for diagnostics — without permanently exposing that management subnet to the LAN.
+- **A dedicated, normally-disabled `ONT_Access` interface** sits on the same physical port, set to `auto '0'`. **Why:** the ONT's management interface is occasionally needed for line diagnostics, but leaving a route to it permanently up means every LAN device can reach a separate device with its own credentials and firmware. **Result:** the diagnostic path exists when needed and simply doesn't exist the rest of the time.
 
 ---
 
@@ -60,14 +60,14 @@ flowchart LR
 - **`cachesize '1000'`** — a modest front-line cache, since the real caching happens one layer down in SmartDNS.
 - **`ednspacket_max '1232'`** — caps EDNS payload size at the value recommended by the DNS Flag Day guidance, avoiding fragmented UDP responses that some middleboxes silently drop.
 - **`filter_aaaa '1'`** — suppresses AAAA answers to LAN clients. A deliberate trade-off: native IPv6 from the ISP is inconsistent, and clients that received AAAA records would prefer IPv6 and stall before falling back. Filtering at the resolver forces reliable IPv4 paths.
-- **`rebind_protection '0'`** — DNS rebinding protection is off, because several self-hosted services legitimately resolve to private addresses and were being blocked by it. The exposure is limited: `localservice` restricts DNS to local subnets, and `rebind_localhost` still guards loopback specifically.
+- **`localservice`** — DNS service is restricted to local subnets only, so the resolver never answers queries arriving from outside the network. **Result:** the router cannot be conscripted into a DNS amplification attack, which is the standard failure mode of an accidentally-open resolver.
 
 ### 2️⃣ SmartDNS — caching, dual-stack selection, filter enforcement point
 
 - Listens on `6053`, with a secondary instance on `6553` used for testing changes without disrupting the live path.
 - **`dualstack_ip_selection`** — when both A and AAAA records exist, SmartDNS actively measures and returns the faster of the two rather than blindly preferring IPv6.
-- **`serve_expired` + `cache_persist`** — stale entries keep being served while a refresh happens in the background, and the cache survives a reboot. On a home connection this is the difference between "the internet is down for 30 seconds after a router restart" and nobody noticing.
-- **`rr_ttl_min '600'`** — enforces a 10-minute floor on TTLs, overriding CDNs that hand out 30-second TTLs and would otherwise generate constant upstream queries.
+- **`serve_expired` + `cache_persist`** — stale entries keep being served while a refresh happens in the background, and the cache survives a reboot. **Result:** a router restart or brief upstream outage is invisible to everyone in the house instead of producing 30 seconds of "the internet is broken" — which matters when the router also serves people who didn't choose to run a homelab.
+- **`rr_ttl_min '600'`** — enforces a 10-minute floor on TTLs, overriding CDNs that hand out 30-second TTLs. **Result:** far fewer upstream queries, which here means less DoH round-trip latency on frequently-visited domains and noticeably faster first-connection times.
 - **`force_https_soa`** — returns an empty SOA for HTTPS/SVCB record types, which prevents clients from discovering and switching to their own DoH endpoints and bypassing this chain.
 - **`bind_device`** — binds the listener to a specific device rather than all addresses, limiting exposure.
 - **Two independent upstreams**, each pointed at a *local* DoH proxy instance rather than a public IP directly. SmartDNS can fail over between providers without any client noticing.
@@ -82,7 +82,7 @@ flowchart LR
 
 ### 🚫 Adblock
 
-- Uses the **Hagezi "ultimate" wildcard** blocklist feed.
+- Uses the **Hagezi "ultimate" wildcard** blocklist feed. **Result:** ads and trackers are blocked on devices that cannot run a blocker themselves — smart TVs, phone apps, and IoT devices phoning home — which no browser extension can achieve.
 - Critically, it's bound to the **SmartDNS instance** (`adb_dns 'smartdns'`, `adb_dnsinstance '6053'`) rather than to dnsmasq. Filtering therefore happens at the same hop that everything is forced through, so no client can escape it, and the blocklist doesn't have to be reloaded into dnsmasq's own cache.
 - `adb_fetchretry '5'` handles the case where the router boots and tries to fetch lists before the PPPoE session is fully up.
 
@@ -108,17 +108,17 @@ flowchart TD
 ```
 
 - **Deny by default**: global policy is `input REJECT` / `forward REJECT`, with `synflood_protect` and `drop_invalid` enabled. The WAN zone specifically overrides input to **`DROP`** rather than `REJECT` — the router stays silent to unsolicited probes instead of advertising its presence with an ICMP rejection.
-- **`fullcone4` / `fullcone6` NAT** on WAN instead of the default symmetric NAT. Symmetric NAT breaks peer-to-peer NAT traversal (VoIP, game consoles, WebRTC) and forces traffic through relay servers; full-cone lets those protocols establish direct connections.
-- **A dedicated `docker` firewall zone** with `wan` listed in `blocked_interfaces`. Containers get their own firewall context rather than being lumped into `lan`, so container egress and container-to-LAN reachability are governed separately from regular clients.
+- **`fullcone4` / `fullcone6` NAT** on WAN instead of the default symmetric NAT. Symmetric NAT breaks peer-to-peer NAT traversal and forces traffic through relay servers. **Result:** VoIP calls, game consoles, and WebRTC connections establish directly rather than being relayed, which removes both the added latency and the dependency on a third party's relay infrastructure.
+- **A dedicated `docker` firewall zone** with `wan` in `blocked_interfaces`. **Why:** containers are the most likely thing on this box to be compromised, since they run third-party images that update frequently. **Result:** container traffic is governed separately from regular LAN clients, so a compromised container is a contained problem rather than an unrestricted foothold on the network.
 - **A dedicated `tailscale` zone** bound directly to the `tailscale0` device, with its own masquerade and `mtu_fix`, plus explicit forwarding rules to both `lan` and `wan`. This is what lets remote tailnet devices reach local LAN services *and* route their general internet traffic out through this router (exit-node behaviour) — the `mtu_fix` matters because WireGuard's encapsulation overhead otherwise causes the same PMTU black-holing described in the WAN section.
-- **Inbound allowances are kept to the functional minimum**: DHCP renewal, ping, IGMP, IPSec/ISAKMP passthrough, and a rate-limited set of ICMPv6 types. The ICMPv6 rules are not optional decoration — IPv6 fundamentally depends on ICMPv6 for neighbour discovery and PMTU discovery, so blanket-blocking ICMP (a common instinct) breaks IPv6 entirely. They're rate-limited to 1000/sec to blunt flood attempts.
+- **Inbound allowances are kept to the functional minimum**: DHCP renewal, ping, IGMP, IPSec passthrough, and a rate-limited set of ICMPv6 types. The ICMPv6 rules are not optional decoration — IPv6 depends on ICMPv6 for neighbour discovery and PMTU discovery, so blanket-blocking ICMP (a common instinct) breaks IPv6 entirely. **Result:** a minimal attack surface that still leaves the protocols the network actually needs functioning correctly, rather than a lockdown that quietly breaks things nobody connects back to the firewall.
 
 ---
 
 ## 🚦 QoS — SQM with CAKE
 
 - **`cake` qdisc** via the `piece_of_cake.qos` script on the WAN device, shaped just below the true line rate in both directions.
-- The point is **bufferbloat elimination**, not raw throughput. Without shaping, the ISP's oversized buffers fill during any sustained upload and latency spikes into the hundreds of milliseconds — video calls stutter and games become unplayable while someone uploads a file. Shaping slightly below line rate moves the queue into the router, where CAKE can manage it fairly.
+- The point is **bufferbloat elimination**, not raw throughput. Without shaping, the ISP's oversized buffers fill during any sustained upload and latency spikes into the hundreds of milliseconds. Shaping slightly below line rate moves the queue into the router, where CAKE can manage it fairly. **Result:** a large upload no longer makes video calls stutter or games unplayable for everyone else — the household stops experiencing "someone is using the internet" as a degradation. This is the single change with the most noticeable day-to-day impact of anything in this repository.
 - **`overhead '44'` with `linklayer 'ethernet'`** — accounts for PPPoE plus VLAN tagging encapsulation, so the shaper's accounting matches what actually goes on the wire. Getting this wrong means the shaper is quietly mis-calibrated.
 - An earlier, more conservative queue definition is retained but disabled, so I can flip back to known-good settings if a change misbehaves.
 - `nft-qos` (per-client static rate limiting) is installed but left disabled — CAKE's fair queueing already handles contention between clients without hard per-device caps.
@@ -129,20 +129,20 @@ flowchart TD
 
 This is an 8-core RK3588S pushing multi-gigabit interfaces, so several defaults needed adjusting:
 
-- **`packet_steering '2'` with `steering_flows '128'`** — enables receive packet steering across all CPU cores. By default network interrupt handling concentrates on a single core, which becomes the bottleneck well before the interfaces saturate. Spreading flows across cores is what makes the 2.5GbE ports usable at full speed.
+- **`packet_steering '2'` with `steering_flows '128'`** — enables receive packet steering across all CPU cores. By default network interrupt handling concentrates on a single core, which becomes the bottleneck well before the interfaces saturate. **Result:** the 2.5GbE ports actually deliver close to line rate instead of plateauing at whatever one core can process — the difference between the hardware's rated capability and what it delivers out of the box.
 - **CPU governor forced to `performance` at boot** via `/etc/rc.local`, iterating over every cpufreq policy. The `conservative` governor left in the cpufreq config ramps up too slowly, adding latency to bursty network workloads; on a device that's always on and thermally unconstrained, the power saving isn't worth the jitter.
-- **`https-dns-proxy` restarted 15 seconds after boot**, also from `rc.local`. This works around a genuine startup race: the DoH proxies start before the PPPoE session has finished negotiating, fail to resolve their own bootstrap endpoints, and stay in a broken state. Delaying a restart until the WAN is actually up fixes DNS-on-cold-boot deterministically.
+- **`https-dns-proxy` restarted 15 seconds after boot**, from `rc.local`. This works around a genuine startup race: the DoH proxies start before the PPPoE session finishes negotiating, fail to resolve their own bootstrap endpoints, and stay in a broken state. **Result:** DNS works reliably after a cold boot or power cut without anyone needing to log in and restart a service — which is what makes the setup something the household can depend on rather than something only I can operate.
 - **OpenSSL `devcrypto` engine and legacy provider enabled** — routes cryptographic operations to the SoC's hardware crypto engine rather than doing them in software.
 - **LED triggers** bound to link state on each physical port, so the front-panel LEDs actually indicate WAN/LAN activity at a glance.
 - **`ddns` explicitly disabled** via a `uci-defaults` script, so it stays off across firmware upgrades rather than being silently re-enabled by a package default.
-- **A cron job prunes oversized logs in `/tmp` every minute.** `/tmp` is a RAM-backed tmpfs on this platform — a runaway log file doesn't fill a disk, it consumes system memory until things start failing in confusing ways. Capping log size is a hard requirement on embedded hardware, not housekeeping.
+- **A cron job prunes oversized logs in `/tmp` every minute.** `/tmp` is a RAM-backed tmpfs here — a runaway log file doesn't fill a disk, it consumes system memory until unrelated services start failing in confusing ways. **Result:** turns a class of hard-to-diagnose, gradually-degrading failures into something that simply cannot happen. On embedded hardware this is a hard requirement, not housekeeping.
 
 ---
 
 ## 📦 Docker Host
 
 - **`data_root` relocated to `/opt/docker`**, which is a **dedicated ext4 partition on the eMMC** mounted via fstab with `noatime`.
-- This matters a lot on OpenWrt: by default the writable filesystem is an overlay on the small firmware partition. Running Docker there fills it almost immediately, and a full overlay on OpenWrt causes strange, hard-to-diagnose failures across unrelated services. A separate partition isolates container storage completely and survives firmware upgrades.
+- This matters a lot on OpenWrt: by default the writable filesystem is an overlay on the small firmware partition. Running Docker there fills it almost immediately, and a full overlay causes strange failures across unrelated services — including the routing and DNS this box exists to provide. **Result:** container storage is fully isolated from the firmware overlay and survives firmware upgrades, so container growth can never take the network down with it.
 - `noatime` avoids a metadata write on every file read — meaningful for both flash wear and throughput on eMMC.
 - Docker's firewall integration is left enabled but constrained by the dedicated `docker` firewall zone described above.
 
