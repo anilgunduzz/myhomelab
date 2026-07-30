@@ -1,8 +1,10 @@
 # 🏠 Homelab
 
-Documentation of my personal homelab environment — network infrastructure, container management, and home automation.
+Documentation of my personal homelab — network infrastructure, container management, home automation, and workstation setup.
 
-> 🔒 This repository does not include real IP addresses, hostnames, credentials, or other sensitive data. The goal is to share the architecture and the problems solved, not the exact configuration.
+Every section answers three questions: **what** was built, **why** that approach was chosen over the alternatives, and **what it actually delivers** in day-to-day operation.
+
+> 🔒 This repository contains no IP addresses, hostnames, credentials, port bindings, or other operational details. It documents architecture and reasoning, not configuration that could be replayed against the environment it describes.
 
 ![OpenWrt](https://img.shields.io/badge/OpenWrt-FriendlyWRT-1D3660?logo=openwrt&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-WUD-2496ED?logo=docker&logoColor=white)
@@ -14,15 +16,16 @@ Documentation of my personal homelab environment — network infrastructure, con
 
 ## 📊 Overview
 
-| Layer | Technology | Status |
-|---|---|---|
-| 🌐 Router / Network OS | FriendlyWRT (NanoPi R6S) | ✅ Active |
-| 🔗 DNS Chain | Dnsmasq → SmartDNS → HTTPS DNS Proxy (DoH) | ✅ Active |
-| 🚫 Ad/Content Blocking | Adblock (OpenWrt) | ✅ Active |
-| 📦 Container Management | Docker + WUD (What's Up Docker) | ✅ Active |
-| 🏡 Home Automation | Home Assistant + ESPHome | 🔧 In progress |
-| 📡 RF Integration | CC1101 + ESP8266 (ESPHome) | 🔧 Capture working, transmit path being verified |
-| 💻 Desktop / Workstation | CachyOS (Arch-based) + Hyprland | ✅ Active |
+| Layer | Technology | Status | What it delivers |
+|---|---|---|---|
+| 🌐 Router / Network OS | FriendlyWRT (NanoPi R6S) | ✅ Active | Full control over NAT, firewall, and routing instead of an opaque ISP-supplied device |
+| 🔗 DNS Chain | Dnsmasq → SmartDNS → DoH | ✅ Active | Encrypted, cached, unbypassable name resolution for every device on the network |
+| 🚫 Ad/Content Blocking | Adblock (OpenWrt) | ✅ Active | Network-wide filtering with zero client-side setup — covers phones, TVs, and IoT devices alike |
+| 🚦 QoS | SQM / CAKE | ✅ Active | Latency stays usable during heavy uploads; video calls and gaming no longer degrade |
+| 📦 Container Management | Docker + WUD | ✅ Active | Update visibility across the stack without surrendering control to unattended auto-updates |
+| 🏡 Home Automation | Home Assistant + ESPHome | 🔧 In progress | Platform is running; device integrations are still being built out |
+| 📡 RF Integration | CC1101 + ESP8266 | 🔧 In progress | RF capture working; transmit path not yet verified |
+| 💻 Workstation | CachyOS + Hyprland | 🔧 In progress | Daily driver running; Secure Boot and snapshot automation still open |
 
 ---
 
@@ -38,50 +41,56 @@ flowchart TD
     C2 --> C3[HTTPS DNS Proxy - DoH]
 
     B --> D[🚫 Adblock<br/>DNS-level filtering]
-    B --> E[🔐 Tailscale<br/>remote access / MagicDNS]
+    B --> E[🔐 Tailscale<br/>remote access]
+    B --> S[🚦 SQM / CAKE<br/>bufferbloat control]
 
     B --> F[📦 Docker Host]
-    F --> F1[WUD<br/>update monitoring + triggering]
+    F --> F1[WUD<br/>update monitoring]
 
     B --> G[🏡 LAN]
     G --> H[Home Assistant]
     H --> I[ESPHome Devices]
-    I --> J[📡 CC1101 + ESP8266<br/>RF bridge - roller blind control]
+    I --> J[📡 CC1101 + ESP8266<br/>RF bridge]
 
-    G --> K[💻 Workstation<br/>CachyOS / Hyprland<br/>dual-boot Windows 11]
+    G --> K[💻 Workstation<br/>CachyOS / Hyprland]
 
     style A fill:#2d2d2d,color:#fff
     style B fill:#1D3660,color:#fff
     style F fill:#2496ED,color:#fff
     style H fill:#41BDF5,color:#fff
     style K fill:#1793D1,color:#fff
+    style S fill:#8e44ad,color:#fff
 ```
 
 ---
 
 ## 📂 Contents
 
-| Folder | Description |
-|---|---|
-| 📡 [`network/`](./network) | Multi-layer DNS chain setup on FriendlyWRT, Adblock integration, issues encountered (Tailscale MagicDNS conflict, `no-resolv` configuration) and their solutions. |
-| 📦 [`docker/`](./docker) | Container update monitoring and management with WUD. |
-| 🏡 [`smart-home/`](./smart-home) | RF-based roller blind control with ESPHome + CC1101; Sonoff RF Bridge R2 / Portisch firmware process. |
-| 💻 [`workstation/`](./workstation) *(optional)* | CachyOS + Hyprland setup, Secure Boot configuration. |
+| Folder | Status | What's documented |
+|---|---|---|
+| 📡 [`network/`](./network) | ✅ Complete | The router: WAN termination, the layered DNS chain and why each layer exists, firewall zone design, QoS, kernel and boot-time tuning, and monitoring — with the reasoning and the measurable outcome for each decision. |
+| 📦 [`docker/`](./docker) | ✅ Complete | The container stack (Home Assistant, MQTT, ESPHome, WUD), why host networking was chosen, the deliberate "notify, don't auto-update" policy — plus an honest backlog of known gaps. |
+| 🏡 [`smart-home/`](./smart-home) | 🚧 In progress | RF-controlled roller blind automation: current progress, what's blocking, and the broader sensor/automation roadmap it's meant to be the foundation for. |
+| 💻 [`workstation/`](./workstation) | 🚧 In progress | CachyOS + Hyprland daily driver: why each component was chosen, and the open items (Secure Boot, snapshot automation) still to be closed. |
 
 ---
 
-## 💡 Why This Project?
+## 💡 Why This Project Exists
 
-I work in IT infrastructure and systems support, and this homelab is a small-scale but real-world exercise in problems also found in production environments: DNS architecture, container lifecycle management, IoT integration, and secure boot configuration. Each folder's README covers not just **what** I did, but **why** I did it this way and **what problems** I ran into along the way.
+I work in IT infrastructure and systems support and I'm moving toward cloud engineering. A homelab is where I get to make architectural decisions end-to-end and then live with the consequences — something that's hard to practise in a production environment where the design is already set and mistakes are expensive.
+
+The problems here are small-scale versions of real ones: layered DNS architecture and resolver bypass prevention, firewall zone segmentation, container lifecycle and update policy, storage layout on constrained hardware, and IoT integration. Getting them wrong has visible consequences (the internet stops working, the blinds don't move), which makes it a fast feedback loop.
+
+**What this repository is meant to show** isn't a list of installed software — it's the reasoning behind each choice, the trade-offs accepted, and an honest account of what isn't finished yet.
 
 ---
 
-## 🛠️ Technologies Used
+## 🛠️ Technologies
 
-`OpenWrt/FriendlyWRT` · `Dnsmasq` · `SmartDNS` · `HTTPS DNS Proxy` · `Docker` · `WUD` · `Home Assistant` · `ESPHome` · `CC1101` · `Tailscale` · `CachyOS` · `Hyprland` · `Btrfs`
+`OpenWrt/FriendlyWRT` · `nftables` · `Dnsmasq` · `SmartDNS` · `DNS-over-HTTPS` · `Adblock` · `SQM/CAKE` · `Docker` · `WUD` · `Home Assistant` · `ESPHome` · `Mosquitto/MQTT` · `CC1101` · `Tailscale` · `CachyOS` · `Hyprland` · `Btrfs`
 
 ---
 
 ## 📄 License
 
-The configuration examples and notes in this repository are for personal use and reference. Consider your own security and privacy requirements before applying anything here to your own environment.
+Released under the MIT License — see [`LICENSE`](./LICENSE). These are notes and architectural descriptions rather than deployable configuration; adapt anything here to your own security requirements before relying on it.
