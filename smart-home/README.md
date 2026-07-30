@@ -38,10 +38,14 @@ flowchart LR
 
 ## 📋 Planned Next Steps
 
-1. Get reliable RF transmit working from the CC1101/ESPHome side — likely a matter of correctly matching timing/modulation parameters to what the Mosel remotes actually send, rather than just replaying captured bytes.
-2. Once transmit is confirmed, expose blind control as a proper ESPHome `cover` component so Home Assistant can drive it natively (rather than via one-off RF replay scripts).
-3. Build actual automations (e.g. close at sunset, open at sunrise, close on high outdoor temperature).
-4. Document the full RF capture → decode → replay pipeline here in detail, once it's stable enough to be worth writing up properly.
+1. **Get reliable RF transmit working** from the CC1101/ESPHome side — likely a matter of matching timing and modulation parameters to what the remotes actually send, rather than replaying captured bytes verbatim. *Benefit:* this is the gate everything else depends on; until it works, the blinds remain manual-only.
+2. **Expose blind control as a proper ESPHome `cover` component** rather than one-off RF replay scripts. *Benefit:* Home Assistant then treats the blinds as first-class devices with position state, so they work in the dashboard, in voice assistants, and in automations without custom glue for each.
+3. **Build the actual automations** — close at sunset, open at sunrise, close when outdoor temperature is high. *Benefit:* the practical payoff — reduced solar heat gain in summer (and therefore lower cooling load) and blinds that no longer need to be operated manually twice a day.
+4. **Document the full capture → decode → replay pipeline** once it's stable. *Benefit:* the same pipeline applies to any 433 MHz device, so writing it up once makes every future RF integration a repeat of a known process rather than a fresh investigation.
+
+## 🎓 Why Do This At All
+
+The blinds could be replaced with off-the-shelf smart motors. Building an RF bridge instead is deliberate: it keeps the existing hardware in service, avoids adding another cloud-dependent device to the network, and means everything runs locally on infrastructure I control — consistent with the rest of this homelab, where the DNS chain and firewall exist precisely to keep devices from depending on outside services. It's also a genuinely useful exercise in working from a signal up: capture, decode, understand the protocol, then reproduce it.
 
 ## 🔭 Longer-Term Vision
 
