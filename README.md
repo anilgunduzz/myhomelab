@@ -70,7 +70,7 @@ flowchart TD
 |:---|:---:|---|
 | 📡&nbsp;[`network/`](./network) | ✅&nbsp;Complete | The router: WAN termination, the layered DNS chain and why each layer exists, firewall zone design, QoS, kernel and boot&#8209;time tuning, and monitoring — with the reasoning and the measurable outcome for each decision. |
 | 📦&nbsp;[`docker/`](./docker) | ✅&nbsp;Complete | The container stack (Home Assistant, MQTT, ESPHome, WUD), why host networking was chosen, the deliberate "notify, don't auto&#8209;update" policy — plus an honest backlog of known gaps. |
-| 🏡&nbsp;[`smart&#8209;home/`](./smart-home) | 🚧&nbsp;In&nbsp;progress | RF&#8209;controlled roller blind automation: current progress, what's blocking, and the broader sensor/automation roadmap it's meant to be the foundation for. |
+| 🏡&nbsp;[`smart‑home/`](./smart-home) | 🚧&nbsp;In&nbsp;progress | RF&#8209;controlled roller blind automation: current progress, what's blocking, and the broader sensor/automation roadmap it's meant to be the foundation for. |
 | 💻&nbsp;[`workstation/`](./workstation) | 🚧&nbsp;In&nbsp;progress | CachyOS + Hyprland daily driver: why each component was chosen, and the open items (Secure Boot, snapshot automation) still to be closed. |
 
 ---
