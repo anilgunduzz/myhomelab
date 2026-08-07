@@ -86,7 +86,7 @@ An x86 mini-PC would have been the conventional choice for a homelab router. Thi
 
 ARM isn't free of downsides, and this project ran into them:
 
-- **Container images aren't universally available for ARM64.** Most mainstream images publish multi-arch builds, but tooling frequently doesn't — the utility used to reverse-engineer the running container stack into a compose file (documented in [`docker/`](./docker)) needed a multi-arch fork because the original image was x86-only. This is a recurring tax rather than a one-off.
+- **Occasional gaps in ARM64 image availability.** Mainstream images — Home Assistant, Mosquitto, ESPHome, and effectively everything else in this stack — publish multi-arch builds, so this is a non-issue day to day. Where it surfaces is smaller utility tooling: the tool used to reverse-engineer the running containers into a compose file (see [`docker/`](./docker)) needed a multi-arch fork. It's a minor detour when it happens, not an ongoing constraint.
 - **Lower single-thread performance** than a comparable x86 chip. Irrelevant for routing and DNS, which parallelise well across cores — but it would matter for a workload that doesn't.
 - **Less expansion.** No practical PCIe expansion path, so the hardware's capability is essentially fixed at purchase.
 - **Some tuning is required to reach rated performance.** Distributing network interrupt handling across cores was necessary before the multi-gigabit interfaces performed near line rate (see [`network/`](./network)). On x86 the defaults would more likely have been adequate out of the box.
