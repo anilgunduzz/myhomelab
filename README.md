@@ -19,7 +19,7 @@ Every section answers three questions: **what** was built, **why** that approach
 | Layer | Technology | Status | What it delivers |
 |---|---|---|---|
 | 🌐 Router / Network OS | FriendlyWRT (NanoPi R6S) | ✅ Active | Full control over NAT, firewall, and routing instead of an opaque ISP-supplied device |
-| 🔗 DNS Chain | Dnsmasq → SmartDNS → DoH | ✅ Active | Encrypted, cached, unbypassable name resolution for every device on the network |
+| 🔗 DNS Chain | Dnsmasq → SmartDNS → DoH | ✅ Active | Encrypted, cached, unbypassable name resolution for every device — including devices connected remotely over VPN |
 | 🚫 Ad/Content Blocking | Adblock (OpenWrt) | ✅ Active | Network-wide filtering with zero client-side setup — covers phones, TVs, and IoT devices alike |
 | 🚦 QoS | SQM / CAKE | ✅ Active | Latency stays usable during heavy uploads; video calls and gaming no longer degrade |
 | 📦 Container Management | Docker + WUD | ✅ Active | Update visibility across the stack without surrendering control to unattended auto-updates |
@@ -41,7 +41,7 @@ flowchart TD
     C2 --> C3[HTTPS DNS Proxy - DoH]
 
     B --> D[🚫 Adblock<br/>DNS-level filtering]
-    B --> E[🔐 Tailscale<br/>remote access]
+    B --> E[🔐 Tailscale<br/>remote access<br/>DNS handled locally]
     B --> S[🚦 SQM / CAKE<br/>bufferbloat control]
 
     B --> F[📦 Docker Host]
@@ -64,8 +64,39 @@ flowchart TD
 
 ---
 
+## 🧮 Why ARM, Not x86
+
+An x86 mini-PC would have been the conventional choice for a homelab router. This runs on an ARM SoC (Rockchip RK3588S) instead, and that was a deliberate decision rather than a cost compromise.
+
+### The reasons that drove the choice
+
+- **Power draw on an always-on device.** This machine never turns off — it's the router, so every other service depends on it being up. An ARM SoC idles at a few watts where a comparable x86 mini-PC idles several times higher. On a 24/7 device that difference isn't a rounding error; it's the difference between a device you forget about and a line item on the electricity bill.
+- **No fans, no moving parts.** Passive cooling was a hard requirement. Fans are the most common mechanical failure point in always-on equipment: they collect dust, they degrade, and they fail gradually rather than cleanly — which on a router means thermal throttling that looks like a mysterious network slowdown long before anything obviously breaks. Removing the moving part removes the entire failure class.
+- **Silence.** This lives in a home, not a rack in a basement. A fanless device can sit in a living space without anyone noticing it exists.
+- **Less heat into the room.** Lower power draw means less waste heat, which matters both for the device's own longevity and for not warming the space it sits in.
+
+### Additional advantages that came with it
+
+- **Networking hardware is integrated, not bolted on.** The board ships with multi-gigabit interfaces built into the SoC package. Reaching the same interface count on x86 usually means either a specific niche board or adding a NIC — more cost, more power, more heat.
+- **Hardware crypto acceleration on the SoC.** Cryptographic operations are offloaded to a dedicated engine rather than consuming general CPU cycles — relevant here because the DNS chain terminates DNS-over-HTTPS locally and Tailscale encrypts all remote-access traffic.
+- **Physical footprint.** The whole device is roughly the size of a paperback, which makes placement a non-issue.
+- **Cost for the networking capability delivered.** Getting equivalent multi-gigabit interfaces on x86 costs meaningfully more for a workload that doesn't need x86-class single-thread performance in the first place.
+
+### The trade-offs, honestly
+
+ARM isn't free of downsides, and this project ran into them:
+
+- **Container images aren't universally available for ARM64.** Most mainstream images publish multi-arch builds, but tooling frequently doesn't — the utility used to reverse-engineer the running container stack into a compose file (documented in [`docker/`](./docker)) needed a multi-arch fork because the original image was x86-only. This is a recurring tax rather than a one-off.
+- **Lower single-thread performance** than a comparable x86 chip. Irrelevant for routing and DNS, which parallelise well across cores — but it would matter for a workload that doesn't.
+- **Less expansion.** No practical PCIe expansion path, so the hardware's capability is essentially fixed at purchase.
+- **Some tuning is required to reach rated performance.** Distributing network interrupt handling across cores was necessary before the multi-gigabit interfaces performed near line rate (see [`network/`](./network)). On x86 the defaults would more likely have been adequate out of the box.
+
+**The conclusion:** for a router — a workload that's parallel, network-bound, and runs continuously — the ARM trade-offs land almost entirely on the favourable side. The constraints it imposes are real, but they're constraints on things this device doesn't need to do.
+
+---
+
 ## 📂 Contents
- 
+
 | Folder | Status | What's documented |
 |:---|:---:|---|
 | 📡&nbsp;[`network/`](./network) | ✅&nbsp;Complete | The router: WAN termination, the layered DNS chain and why each layer exists, firewall zone design, QoS, kernel and boot&#8209;time tuning, and monitoring — with the reasoning and the measurable outcome for each decision. |
