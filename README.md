@@ -29,6 +29,16 @@ Every section answers three questions: **what** was built, **why** that approach
 
 ---
 
+## 💡 Why This Project Exists
+
+I work in IT infrastructure and systems support and I'm moving toward cloud engineering. A homelab is where I get to make architectural decisions end-to-end and then live with the consequences — something that's hard to practise in a production environment where the design is already set and mistakes are expensive.
+
+The problems here are small-scale versions of real ones: layered DNS architecture and resolver bypass prevention, firewall zone segmentation, container lifecycle and update policy, storage layout on constrained hardware, and IoT integration. Getting them wrong has visible consequences (the internet stops working, the blinds don't move), which makes it a fast feedback loop.
+
+**What this repository is meant to show** isn't a list of installed software — it's the reasoning behind each choice, the trade-offs accepted, and an honest account of what isn't finished yet.
+
+---
+
 ## 🧭 Architecture
 
 ```mermaid
@@ -103,16 +113,6 @@ ARM isn't free of downsides, and this project ran into them:
 | 📦&nbsp;[`docker/`](./docker) | ✅&nbsp;Complete | The container stack (Home Assistant, MQTT, ESPHome, WUD), why host networking was chosen, the deliberate "notify, don't auto&#8209;update" policy — plus an honest backlog of known gaps. |
 | 🏡&nbsp;[`smart‑home/`](./smart-home) | 🚧&nbsp;In&nbsp;progress | RF&#8209;controlled roller blind automation: current progress, what's blocking, and the broader sensor/automation roadmap it's meant to be the foundation for. |
 | 💻&nbsp;[`workstation/`](./workstation) | 🚧&nbsp;In&nbsp;progress | CachyOS + Hyprland daily driver: why each component was chosen, and the open items (Secure Boot, snapshot automation) still to be closed. |
-
----
-
-## 💡 Why This Project Exists
-
-I work in IT infrastructure and systems support and I'm moving toward cloud engineering. A homelab is where I get to make architectural decisions end-to-end and then live with the consequences — something that's hard to practise in a production environment where the design is already set and mistakes are expensive.
-
-The problems here are small-scale versions of real ones: layered DNS architecture and resolver bypass prevention, firewall zone segmentation, container lifecycle and update policy, storage layout on constrained hardware, and IoT integration. Getting them wrong has visible consequences (the internet stops working, the blinds don't move), which makes it a fast feedback loop.
-
-**What this repository is meant to show** isn't a list of installed software — it's the reasoning behind each choice, the trade-offs accepted, and an honest account of what isn't finished yet.
 
 ---
 
