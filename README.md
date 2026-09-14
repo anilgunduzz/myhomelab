@@ -10,7 +10,7 @@ Every section answers three questions: **what** was built, **why** that approach
 ![Docker](https://img.shields.io/badge/Docker-WUD-2496ED?logo=docker&logoColor=white)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-ESPHome-41BDF5?logo=homeassistant&logoColor=white)
 ![Tailscale](https://img.shields.io/badge/Tailscale-VPN-000000?logo=tailscale&logoColor=white)
-![CachyOS](https://img.shields.io/badge/CachyOS-Hyprland-1793D1?logo=archlinux&logoColor=white)
+![CachyOS](https://img.shields.io/badge/CachyOS-KDE-1793D1?logo=archlinux&logoColor=white)
 
 ---
 
@@ -25,7 +25,7 @@ Every section answers three questions: **what** was built, **why** that approach
 | 📦 Container Management | Docker + WUD | ✅ Active | Update visibility across the stack without surrendering control to unattended auto-updates |
 | 🏡 Home Automation | Home Assistant + ESPHome | 🔧 In progress | Platform is running; device integrations are still being built out |
 | 📡 RF Integration | CC1101 + ESP8266 | 🔧 In progress | RF capture working; transmit path not yet verified |
-| 💻 Workstation | CachyOS + Hyprland | 🔧 In progress | Daily driver running; Secure Boot and snapshot automation still open |
+| 💻 Workstation | CachyOS + KDE | 🔧 In progress | Daily driver running; Secure Boot and snapshot automation still open |
 
 ---
 
@@ -123,7 +123,7 @@ ARM isn't free of downsides, and this project ran into them:
 
 ## 🛠️ Technologies
 
-`OpenWrt/FriendlyWRT` · `nftables` · `Dnsmasq` · `SmartDNS` · `DNS-over-HTTPS` · `Adblock` · `SQM/CAKE` · `Docker` · `WUD` · `Home Assistant` · `ESPHome` · `Mosquitto/MQTT` · `CC1101` · `Tailscale` · `CachyOS` · `Hyprland` · `Btrfs`
+`OpenWrt/FriendlyWRT` · `nftables` · `Dnsmasq` · `SmartDNS` · `DNS-over-HTTPS` · `Adblock` · `SQM/CAKE` · `Docker` · `WUD` · `Home Assistant` · `ESPHome` · `Mosquitto/MQTT` · `CC1101` · `Tailscale` · `CachyOS` · `KDE` · `Btrfs`
 
 ---
 
