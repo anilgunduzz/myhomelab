@@ -45,14 +45,14 @@ The problems here are small-scale versions of real ones: layered DNS architectur
 flowchart TD
     NET(("🌍 Internet"))
     REMOTE["💻 Remote PC"] --> NET
-    NET -->|Tailscale exit node| R6S
+    NET <-->|Tailscale exit node| R6S
 
-    NET <--> ADB["🚫 Adblock - Hagezi"]
-    ADB -- DOH["HTTPS DNS Proxy - DoH"]
-    DOH -- SDNS["SmartDNS"]
-    SDNS -- DNSM["Dnsmasq"]
-    DNSM -- SQM["SQM"]
-    SQM <--> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
+    NET <-- ADB["🚫 Adblock - Hagezi"]
+    ADB --- DOH["HTTPS DNS Proxy - DoH"]
+    DOH --- SDNS["SmartDNS"]
+    SDNS --- DNSM["Dnsmasq"]
+    DNSM --- SQM["SQM"]
+    SQM --> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
 
     R6S -.->|hosts| DOCKER["📦 Docker Host"]
     DOCKER --> WUD["WUD<br/>update monitoring"]
@@ -60,7 +60,7 @@ flowchart TD
     HA --> ESP["ESPHome Devices"]
     ESP --> RF["CC1101 + ESP8266<br/>RF bridge"]
 
-    R6S --> AX6S["📶 Openwrt Wi-Fi AP<br/>AX6S"]
+    R6S --> AX6S["📶 AX6S<br/>Openwrt Wi-Fi AP"]
     AX6S --> SW1["1G Unmanaged Switch"]
     SW1 --> TV["TV"]
     SW1 --> PS4["PS4"]
