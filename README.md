@@ -48,28 +48,28 @@ flowchart TD
     NET <-->|Tailscale exit node| R6S
 
     NET <--> ADB["🚫 Adblock - Hagezi"]
-    ADB --- DOH["HTTPS DNS Proxy - DoH"]
+    ADB --- DOH["🔗 HTTPS DNS Proxy - DoH"]
     DOH --- SDNS["SmartDNS"]
     SDNS --- DNSM["Dnsmasq"]
-    DNSM --- SQM["⚖️SQM"]
+    DNSM --- SQM["⚖️ SQM"]
     SQM <--> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
 
     R6S -.->|hosts| DOCKER["📦 Docker Host"]
     DOCKER --> WUD["WUD<br/>update monitoring"]
-    DOCKER --> HA["Home Assistant"]
+    DOCKER --> HA["🏠 Home Assistant"]
     HA --> ESP["ESPHome Devices"]
     ESP --> RF["CC1101 + ESP8266<br/>RF bridge"]
 
     R6S --> AX6S["📶 AX6S<br/>Openwrt Wi-Fi AP"]
-    AX6S --> SW1["1G Unmanaged Switch"]
-    SW1 --> TV["TV"]
-    SW1 --> PS4["PS4"]
-    SW1 --> RECAL["Recalbox"]
+    AX6S --> SW1["⚙️ 1G Unmanaged Switch"]
+    SW1 --> TV["📺 TV"]
+    SW1 --> PS4["🎮 PS4"]
+    SW1 --> RECAL["🕹️ Recalbox"]
 
-    R6S --> SW2["1G Unmanaged Switch"]
-    SW2 --> PC1["PC"]
-    SW2 --> PC2["PC"]
-    SW2 --> LAP["Laptop"]
+    R6S --> SW2["⚙️ 1G Unmanaged Switch"]
+    SW2 --> PC1["🖥️ PC"]
+    SW2 --> PC2["🖥️ PC"]
+    SW2 --> LAP["💻 Laptop"]
 
     style R6S fill:#1D3660,color:#fff
     style DOCKER fill:#2496ED,color:#fff
