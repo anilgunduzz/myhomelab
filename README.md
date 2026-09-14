@@ -51,7 +51,7 @@ flowchart TD
     ADB --- DOH["HTTPS DNS Proxy - DoH"]
     DOH --- SDNS["SmartDNS"]
     SDNS --- DNSM["Dnsmasq"]
-    DNSM --- SQM["SQM"]
+    DNSM --- SQM["⚖️SQM"]
     SQM <--> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
 
     R6S -.->|hosts| DOCKER["📦 Docker Host"]
