@@ -47,12 +47,12 @@ flowchart TD
     REMOTE["💻 Remote PC"] --> NET
     NET -->|Tailscale exit node| R6S
 
-    NET --> ADB["🚫 Adblock - Hagezi"]
-    ADB --> DOH["HTTPS DNS Proxy - DoH"]
-    DOH --> SDNS["SmartDNS"]
-    SDNS --> DNSM["Dnsmasq"]
-    DNSM --> SQM["SQM"]
-    SQM --> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
+    NET <--> ADB["🚫 Adblock - Hagezi"]
+    ADB -- DOH["HTTPS DNS Proxy - DoH"]
+    DOH -- SDNS["SmartDNS"]
+    SDNS -- DNSM["Dnsmasq"]
+    DNSM -- SQM["SQM"]
+    SQM <--> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
 
     R6S -.->|hosts| DOCKER["📦 Docker Host"]
     DOCKER --> WUD["WUD<br/>update monitoring"]
