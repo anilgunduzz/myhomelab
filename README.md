@@ -57,8 +57,8 @@ flowchart TD
     R6S -.->|hosts| DOCKER["📦 Docker Host"]
     DOCKER --> WUD["WUD<br/>update monitoring"]
     DOCKER --> HA["🏡 Home Assistant"]
-    HA --> ESP["ESPHome Devices"]
-    ESP --> RF["CC1101 + ESP8266<br/>RF bridge"]
+    HA --> ESP["💡ESPHome Devices"]
+    ESP --> RF["📡 CC1101 + ESP8266<br/>RF bridge"]
 
     R6S --> AX6S["📶 AX6S<br/>Openwrt Wi-Fi AP"]
     AX6S --> SW1["⚙️ 1G Unmanaged Switch"]
