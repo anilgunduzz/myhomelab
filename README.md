@@ -43,33 +43,38 @@ The problems here are small-scale versions of real ones: layered DNS architectur
 
 ```mermaid
 flowchart TD
-    A[🌍 Internet] --> B[🌐 FriendlyWRT Router<br/>NanoPi R6S]
+    NET(("🌍 Internet"))
+    REMOTE["💻 Remote PC"] --> NET
+    NET -->|Tailscale exit node| R6S
 
-    B --> C[🔗 DNS Chain]
-    C --> C1[Dnsmasq]
-    C1 --> C2[SmartDNS]
-    C2 --> C3[HTTPS DNS Proxy - DoH]
+    NET --> ADB["🚫 Adblock - Hagezi"]
+    ADB --> DOH["HTTPS DNS Proxy - DoH"]
+    DOH --> SDNS["SmartDNS"]
+    SDNS --> DNSM["Dnsmasq"]
+    DNSM --> SQM["SQM"]
+    SQM --> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
 
-    B --> D[🚫 Adblock<br/>DNS-level filtering]
-    B --> E[🔐 Tailscale<br/>remote access<br/>DNS handled locally]
-    B --> S[🚦 SQM / CAKE<br/>bufferbloat control]
+    R6S -.->|hosts| DOCKER["📦 Docker Host"]
+    DOCKER --> WUD["WUD<br/>update monitoring"]
+    DOCKER --> HA["Home Assistant"]
+    HA --> ESP["ESPHome Devices"]
+    ESP --> RF["CC1101 + ESP8266<br/>RF bridge"]
 
-    B --> F[📦 Docker Host]
-    F --> F1[WUD<br/>update monitoring]
+    R6S --> AX6S["📶 AX6S<br/>Openwrt Wi-Fi AP"]
+    AX6S --> SW1["1G Unmanaged Switch"]
+    SW1 --> TV["TV"]
+    SW1 --> PS4["PS4"]
+    SW1 --> RECAL["Recalbox"]
 
-    B --> G[🏡 LAN]
-    G --> H[Home Assistant]
-    H --> I[ESPHome Devices]
-    I --> J[📡 CC1101 + ESP8266<br/>RF bridge]
+    R6S --> SW2["1G Unmanaged Switch"]
+    SW2 --> PC1["PC"]
+    SW2 --> PC2["PC"]
+    SW2 --> LAP["Laptop"]
 
-    G --> K[💻 Workstation<br/>CachyOS / Hyprland]
-
-    style A fill:#2d2d2d,color:#fff
-    style B fill:#1D3660,color:#fff
-    style F fill:#2496ED,color:#fff
-    style H fill:#41BDF5,color:#fff
-    style K fill:#1793D1,color:#fff
-    style S fill:#8e44ad,color:#fff
+    style R6S fill:#1D3660,color:#fff
+    style DOCKER fill:#2496ED,color:#fff
+    style HA fill:#41BDF5,color:#fff
+    style NET fill:#2d2d2d,color:#fff
 ```
 
 ---
