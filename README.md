@@ -55,7 +55,7 @@ flowchart TD
     SQM <--> R6S["🌐 FriendlyWRT Router<br/>NanoPi R6S"]
 
     R6S -.->|hosts| DOCKER["📦 Docker Host"]
-    DOCKER --> WUD["WUD<br/>update monitoring"]
+    DOCKER --> WUD["🔄️ WUD<br/>update monitoring"]
     DOCKER --> HA["🏡 Home Assistant"]
     HA --> ESP["💡ESPHome Devices"]
     ESP --> RF["📡 CC1101 + ESP8266<br/>RF bridge"]
