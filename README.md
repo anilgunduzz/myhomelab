@@ -60,7 +60,7 @@ flowchart TD
     HA --> ESP["ESPHome Devices"]
     ESP --> RF["CC1101 + ESP8266<br/>RF bridge"]
 
-    R6S --> AX6S["📶 AX6S<br/>Openwrt Wi-Fi AP"]
+    R6S --> AX6S["📶 Openwrt Wi-Fi AP<br/>AX6S"]
     AX6S --> SW1["1G Unmanaged Switch"]
     SW1 --> TV["TV"]
     SW1 --> PS4["PS4"]
