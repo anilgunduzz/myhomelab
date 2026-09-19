@@ -66,7 +66,7 @@ flowchart TD
     SW1 --> PS4["🎮 PS4"]
     SW1 --> RECAL["🕹️ Recalbox"]
 
-    R6S --> SW2["⚙️ 1G Unmanaged Switch"]
+    R6S --> SW2["⚙️ 2.5G Managed Switch"]
     SW2 --> PC1["🖥️ PC"]
     SW2 --> PC2["🖥️ PC"]
     SW2 --> LAP["💻 Laptop"]
