@@ -45,7 +45,7 @@ The problems here are small-scale versions of real ones: layered DNS architectur
 flowchart TD
     NET(("🌍 Internet"))
     REMOTE["💻 Remote PC"] --> NET
-    NET <-->|Tailscale exit node| R6S
+    NET <-->|🔐 Tailscale exit node| R6S
 
     NET <--> ADB["🚫 Adblock - Hagezi"]
     ADB --- DOH["🔗 HTTPS DNS Proxy - DoH"]
