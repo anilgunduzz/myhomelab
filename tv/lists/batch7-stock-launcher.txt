@@ -1,0 +1,7 @@
+# Philips 55PUS6581/12, QM163E, Android 8.0.0 (API 26), firmware QM163E.0.26.70.1
+# Apply: TV_HOST=<tv ip> tools/disable.sh work/philips-55pus6581/batch7-stock-launcher.txt
+# Undo:  TV_HOST=<tv ip> tools/restore.sh work/philips-55pus6581/batch7-stock-launcher.txt
+
+# Only after launcher/ is Home (dumpsys activity activities | grep mFocusedApp).
+com.google.android.tvlauncher
+com.google.android.tvrecommendations        # after tvlauncher: it holds a provider reference

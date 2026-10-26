@@ -1,0 +1,5 @@
+# Philips 55PUS6581/12, QM163E, Android 8.0.0 (API 26), firmware QM163E.0.26.70.1
+# Apply: TV_HOST=<tv ip> tools/disable.sh work/philips-55pus6581/batch8-smarttvhome.txt
+# Undo:  TV_HOST=<tv ip> tools/restore.sh work/philips-55pus6581/batch8-smarttvhome.txt
+
+org.droidtv.smarttvhome                     # "Smart TV" LEANBACK_LAUNCHER tile, no permissions; test remote keys after

@@ -1,0 +1,7 @@
+# Philips 55PUS6581/12, QM163E, Android 8.0.0 (API 26), firmware QM163E.0.26.70.1
+# Both ask for TV_INPUT_HARDWARE but serve no TvInputService (cmd package query-services): false positive.
+# Apply: TVINPUT_ALLOW=1 TV_HOST=<tv ip> tools/disable.sh work/philips-55pus6581/batch2b-tvinput-false-positives.txt
+# Undo:  TV_HOST=<tv ip> tools/restore.sh work/philips-55pus6581/batch2b-tvinput-false-positives.txt
+
+org.droidtv.usagelogger                     # Philips usage logging (OnBootLogger) ; TV_INPUT_HARDWARE false positive, needs TVINPUT_ALLOW=1
+org.droidtv.demome                          # retail store demo ; TV_INPUT_HARDWARE false positive, needs TVINPUT_ALLOW=1

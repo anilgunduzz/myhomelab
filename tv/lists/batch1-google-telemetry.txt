@@ -1,0 +1,9 @@
+# Philips 55PUS6581/12, QM163E, Android 8.0.0 (API 26), firmware QM163E.0.26.70.1
+# Apply: TV_HOST=<tv ip> tools/disable.sh work/philips-55pus6581/batch1-google-telemetry.txt
+# Undo:  TV_HOST=<tv ip> tools/restore.sh work/philips-55pus6581/batch1-google-telemetry.txt
+
+com.google.android.feedback                 # Market Feedback Agent
+com.google.android.tvtutorials              # first-run tutorials
+com.google.android.tv.bugreportsender       # bug report sender
+com.google.android.partnersetup             # partner setup / client id
+com.google.android.onetimeinitializer       # one-time initializer

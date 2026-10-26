@@ -1,0 +1,25 @@
+<!-- The only values changed in cleanyourtv's launcher/app/src/main/res/values/config.xml for this TV.
+     Everything else is the upstream default. -->
+<resources>
+    <!-- Dock, left to right. Live TV and Netflix have their own buttons on the remote, so they stay off it. -->
+    <string-array name="dock_apps">
+        <item>com.stremio.one</item>
+        <item>com.google.android.youtube.tv</item>
+        <item>com.wbd.stream</item>
+        <item>com.android.vending</item>
+    </string-array>
+
+    <!-- Philips' Live TV app on this platform (not org.droidtv.playtv as on later Philips boards).
+         Listed at the end of the Inputs menu, hidden from the app grid. -->
+    <string-array name="hidden_apps">
+        <item>org.droidtv.zapster</item>
+    </string-array>
+    <string name="live_tv_package" translatable="false">org.droidtv.zapster</string>
+
+    <!-- Hold OK (or press Menu) on a tile: Replace with another app (dock), Move, Remove from Home, App info.
+         Upstream default false: holding OK goes straight to App info. -->
+    <bool name="tile_menu">true</bool>
+    <!-- An App library entry after the last Home row: every installed app, added to or taken off Home there.
+         Needed for "Remove from Home" in the tile menu. -->
+    <bool name="app_library">true</bool>
+</resources>

@@ -26,6 +26,7 @@ Every section answers three questions: **what** was built, **why** that approach
 | 🏡 Home Automation | Home Assistant + ESPHome | 🔧 In progress | Platform is running; device integrations are still being built out |
 | 📡 RF Integration | CC1101 + ESP8266 | 🔧 In progress | RF capture working; transmit path not yet verified |
 | 💻 Workstation | CachyOS + KDE | 🔧 In progress | Daily driver running; Secure Boot and snapshot automation still open |
+| 📺 Living-room TV | Android TV 8 + cleanyourtv | ✅ Active | Telemetry and ad services disabled (not uninstalled), offline home screen, every step reversible |
 
 ---
 
@@ -117,13 +118,14 @@ ARM isn't free of downsides, and this project ran into them:
 | 🌐&nbsp;[`network/`](./network) | ✅&nbsp;Complete | The router: WAN termination, the layered DNS chain and why each layer exists, firewall zone design, QoS, kernel and boot&#8209;time tuning, and monitoring — with the reasoning and the measurable outcome for each decision. |
 | 📦&nbsp;[`docker/`](./docker) | ✅&nbsp;Complete | The container stack (Home Assistant, MQTT, ESPHome, WUD), why host networking was chosen, the deliberate "notify, don't auto&#8209;update" policy — plus an honest backlog of known gaps. |
 | 🏡&nbsp;[`smart‑home/`](./smart-home) | 🚧&nbsp;In&nbsp;progress | RF&#8209;controlled roller blind automation: current progress, what's blocking, and the broader sensor/automation roadmap it's meant to be the foundation for. |
+| 📺&nbsp;[`tv/`](./tv) | ✅&nbsp;Complete | Debloating a 2016 Philips Android TV with [cleanyourtv](https://github.com/Gathin23/cleanyourtv): what was disabled and the evidence for each, what was deliberately kept, the safety process, and what it cost versus delivered. |
 | 🖥️&nbsp;[`workstation/`](./workstation) | 🚧&nbsp;In&nbsp;progress | CachyOS + KDE daily driver: why each component was chosen, and the open items (Secure Boot, snapshot automation) still to be closed. |
 
 ---
 
 ## 🛠️ Technologies
 
-`OpenWrt/FriendlyWRT` · `nftables` · `Dnsmasq` · `SmartDNS` · `DNS-over-HTTPS` · `Adblock` · `SQM/CAKE` · `Docker` · `WUD` · `Home Assistant` · `ESPHome` · `Mosquitto/MQTT` · `CC1101` · `Tailscale` · `CachyOS` · `KDE` · `Btrfs`
+`OpenWrt/FriendlyWRT` · `nftables` · `Dnsmasq` · `SmartDNS` · `DNS-over-HTTPS` · `Adblock` · `SQM/CAKE` · `Docker` · `WUD` · `Home Assistant` · `ESPHome` · `Mosquitto/MQTT` · `CC1101` · `Tailscale` · `CachyOS` · `KDE` · `Btrfs` · `Android TV` · `ADB`
 
 ---
 

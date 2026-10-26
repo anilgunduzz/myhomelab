@@ -1,0 +1,7 @@
+# Philips 55PUS6581/12, QM163E, Android 8.0.0 (API 26), firmware QM163E.0.26.70.1
+# Apply: TV_HOST=<tv ip> tools/disable.sh work/philips-55pus6581/batch5-google-preloads.txt
+# Undo:  TV_HOST=<tv ip> tools/restore.sh work/philips-55pus6581/batch5-google-preloads.txt
+
+com.google.android.music                    # Google Play Music (discontinued)
+com.google.android.videos                   # Google Play Movies
+com.google.android.play.games               # Google Play Games
