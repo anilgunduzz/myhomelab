@@ -170,8 +170,9 @@ Network ADB (port 5555) is plaintext. The last step: revoke the USB debugging au
 debugging off, reboot, and have `tools/adb-closed.py` see the port **refuse** the connection (a timeout or
 "no route to host" proves nothing). Debugging is switched on again only for the length of a change.
 
-**Current state: closed (2026-11-02).** With Developer options turned off on the TV, `tools/adb-closed.py`
-reports port 5555 refusing the connection while the TV is on and on the network. What the first attempt showed
+**Current state: closed (2026-11-02).** What closed it: Developer options turned on again, "Revoke USB
+debugging authorisations" chosen, then Developer options turned off. Straight after that, `tools/adb-closed.py`
+reported port 5555 refusing the connection while the TV was on and on the network. What the first attempt showed
 is worth recording:
 
 - Hiding **Developer options** does not stop ADB. After the menu had disappeared from Settings and the TV had
