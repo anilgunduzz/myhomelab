@@ -29,7 +29,7 @@ Like the rest of this repository, this page answers **what** was done, **why** i
 | Method | `pm disable-user --user 0`, one package per call, in 9 small batches with a test after each |
 | Result | 23 packages disabled, 0 uninstalled; all 23 still disabled after a full reboot |
 | Home screen | cleanyourtv's launcher, 4-slot dock, tile menu and app library on, no `INTERNET` permission |
-| Status | ✅ Debloat and launcher done. ADB intentionally still open for theme work; closing it and several days of everyday use are open (see [Open items](#-open-items)) |
+| Status | ✅ Done. 23 packages still disabled after a week of everyday use (checked 2026-11-02); network ADB closed and verified. Shared upstream as [cleanyourtv#3093](https://github.com/Gathin23/cleanyourtv/pull/3093) |
 
 | Home | Inputs menu |
 |---|---|
@@ -170,28 +170,31 @@ Network ADB (port 5555) is plaintext. The last step: revoke the USB debugging au
 debugging off, reboot, and have `tools/adb-closed.py` see the port **refuse** the connection (a timeout or
 "no route to host" proves nothing). Debugging is switched on again only for the length of a change.
 
-**Current state: still open, on purpose.** Network ADB is left on for now so a launcher theme can be tried
-before closing up. What the first attempt showed is worth recording:
+**Current state: closed (2026-11-02).** With Developer options turned off on the TV, `tools/adb-closed.py`
+reports port 5555 refusing the connection while the TV is on and on the network. What the first attempt showed
+is worth recording:
 
 - Hiding **Developer options** does not stop ADB. After the menu had disappeared from Settings and the TV had
   been unplugged and restarted, port 5555 still accepted connections, and a previously authorised computer was
   still let in as an authorised device. The revoke and the USB-debugging switch had not taken effect.
 - The order that matters when closing: open Developer options again, revoke the authorisations, switch USB
   debugging off and see it shown as off, only then turn Developer options off, then a full power cycle.
-- Until then the port only admits computers that were authorised before; anything else gets an on-screen prompt.
+- While it was open, the port only admitted computers that were authorised before; anything else got an
+  on-screen prompt.
 
-- [ ] ADB closed and verified (`tools/adb-closed.py` reports the connection refused)
+- [x] ADB closed and verified (`tools/adb-closed.py` reports the connection refused)
 
 ---
 
 ## 📝 Open items
 
-- [ ] **Close network ADB** after the theme work (see [Closing up](#-closing-up)).
-- [ ] **Several days of everyday use** before calling the list proven. Every batch passed its tests and a full
-      reboot, but some problems only show up after days (an overnight standby, a firmware check).
+- [x] **Close network ADB** (see [Closing up](#-closing-up)); closed 2026-11-02.
+- [x] **Several days of everyday use** before calling the list proven. On 2026-11-02, after a week of daily use,
+      all 23 packages were still disabled and the launcher was still Home.
 - [ ] **Top Picks button:** left dead on purpose (see above). Revisit only if a key mapping turns out not to
       affect key repeat on this set.
 - [ ] **Boot time:** the remote only responds once Android has finished booting (the standby LED stops blinking).
       Nothing safe to change here; the practical answer is standby instead of a mains power-off.
-- [ ] **Share upstream:** the list could become an `examples/` entry in cleanyourtv for this platform
-      (QM163E has no tested list there yet), following their `docs/workflows/tv-list.md`.
+- [x] **Share upstream:** a QM163E list (`examples/philips-49pus6561/`) appeared upstream in the meantime on the
+      same firmware, so this TV was added to it as a second unit, following `docs/workflows/tv-list.md`:
+      [cleanyourtv#3093](https://github.com/Gathin23/cleanyourtv/pull/3093).
